@@ -74,11 +74,18 @@ export function coachSlug(id) {
 // "Find me a coach" below). Direct contact-detail display was removed
 // rather than rebuilt against the new table for that reason.
 
+// availability (per coach): 'taking' shows "Taking clients" with a green dot, 'nearly_full'
+// shows "Nearly full" with an amber dot, leave it out to show nothing. Every coach is
+// seeded 'taking' as a placeholder until the founder sets the real one.
+// chips (optional, up to 3 short words): the speciality chips on the swipe card. Without it
+// they come from the services list, then the category.
 export const COACHES = [
   // ── Academic ──
   {
     id: 1, name: '500+ with Eman', category: 'Academic Grinds', filter: 'Academic Grinds',
+    availability: 'taking',
     slug: 'eman', verified: true,
+    chips: ['LC Maths', 'LC Biology', 'LC Physics'],
     heroImage: require('../../assets/coaches/eman/hero.jpg'),
     // New profile photo: the round photo on the profile and the featured card picture.
     // The existing 500+ with Eman logo stays as the banner.
@@ -94,7 +101,9 @@ export const COACHES = [
   // ── Sports ──
   {
     id: 2, name: 'JMC Fitness', category: 'Sports Coaching', filter: 'Fitness',
+    availability: 'taking',
     slug: 'jmc-fitness', verified: true,
+    chips: ['Sports coaching', 'Online plans', 'Football'],
     heroImage: require('../../assets/coaches/jmc-fitness/hero.jpg'),
     // The hero is the JMC Fitness logo on its own blue, so the featured card
     // shows it whole (contain) on that blue instead of cropping the lettering.
@@ -123,7 +132,9 @@ export const COACHES = [
   // ── Creative ──
   {
     id: 3, name: 'Nathan Yanzo (Nyz3ditz)', category: 'Photography & Video', filter: 'Marketing',
+    availability: 'taking',
     slug: 'nathan-yanzo', verified: true,
+    chips: ['Photography', 'Videography', 'Mentorship'],
     heroImage: require('../../assets/coaches/nathan-yanzo/hero.jpg'),
     // Founder uploaded photos. The hero is the Nyz3ditz Studio logo, so the featured
     // card uses the portrait (second photo) and the logo stays as the banner.
@@ -150,7 +161,9 @@ export const COACHES = [
   // ── Finance ──
   {
     id: 16, name: 'Zainab Adeyemi (Soft Life Investing)', category: 'Investing and Finance Coach', filter: 'Finance',
+    availability: 'taking',
     slug: 'zainab-adeyemi', verified: true,
+    chips: ['Budgeting', 'Saving', 'Investing'],
     heroImage: require('../../assets/coaches/zainab-adeyemi/hero.jpg'),
     location: 'Ireland', from: 'Available on request',
     title: 'Chartered Accountant · Founder, Soft Life Investing',
@@ -173,7 +186,9 @@ export const COACHES = [
   // ── Fitness ──
   {
     id: 17, name: 'Camila Aruk', category: 'Personal Training · Muay Thai · Yoga',
+    availability: 'taking',
     slug: 'camila-aruk', verified: true,
+    chips: ['Personal training', 'Muay Thai', 'Yoga'],
     heroImage: require('../../assets/coaches/camila-aruk/hero.jpg'),
     // Card-only single specialty tag — the full compound category above still
     // shows on her profile page, but the grid card shows one clear tag per
@@ -207,7 +222,9 @@ export const COACHES = [
 
   {
     id: 7, name: 'Tadgh Darcy', category: 'Physique Development', filter: 'Fitness',
+    availability: 'taking',
     slug: 'tadgh-darcy', verified: true,
+    chips: ['Nutrition plans', 'Training plans', 'Weekly check-ins'],
     location: 'Dublin', from: 'Available on request',
     services: ['Tailored Nutrition Plan', 'Custom Training Programme', 'Weekly Check-in Videos', 'All-in-One Coaching App', 'Direct Coach Access'],
     quote: "Online physique development coach, main goal is to help people regain confidence and build healthy sustainable habits whilst also enjoying the process. Based in Dublin.",
@@ -226,7 +243,9 @@ export const COACHES = [
 
   {
     id: 8, name: 'Milan Piroska (MPFitness)', category: 'Personal Training', filter: 'Fitness',
+    availability: 'taking',
     slug: 'milan-piroska', verified: true,
+    chips: ['Physique', 'Fat loss', 'Contest prep'],
     location: 'Kildare', from: '€40/session',
     title: 'Certified Personal Trainer / Advanced Nutrition Coach / International Men\'s Physique Athlete',
     tagline: 'MPFitness. More Than Fitness.',
@@ -268,7 +287,9 @@ export const COACHES = [
 
   {
     id: 9, name: 'Kevin (TrainWitKev)', category: 'Personal Training', filter: 'Fitness',
+    availability: 'taking',
     slug: 'kevin-trainwitkev', verified: true,
+    chips: ['Personal training', 'Beginner friendly', 'Accountability'],
     heroImage: require('../../assets/coaches/kevin-trainwitkev/hero.jpg'),
     location: 'Dublin', from: '€25/session',
     tagline: 'Strength. Physique. Confidence. Mindset.',
@@ -289,7 +310,9 @@ export const COACHES = [
   // ── Marketing / Branding ──
   {
     id: 10, name: 'Alex Leva', category: 'Digital Marketing', filter: 'Marketing',
+    availability: 'taking',
     slug: 'alex-leva', verified: true,
+    chips: ['Social media', 'Content plans', 'Mentorship'],
     heroImage: require('../../assets/coaches/alex-leva/hero.jpg'),
     location: 'Mayo',
     // No set price and no pricelist to clarify a number against — a bare
@@ -327,7 +350,9 @@ export const COACHES = [
   // ── Health & Fitness ──
   {
     id: 12, name: 'Jayden Reynolds', category: 'Health & Fitness Coaching', filter: 'Fitness',
+    availability: 'taking',
     slug: 'jayden-reynolds', verified: true,
+    chips: ['Online coaching', 'Fitness plans', 'Nutrition'],
     heroImage: require('../../assets/coaches/jayden-reynolds/hero.jpg'),
     location: 'Sligo', from: 'Available on request',
     services: ['1-1 Online Coaching', 'Tailored Fitness Plans', 'Nutritional Guidance', 'Regular Check-ins', 'Nutrition Journal', 'Local In-Person Coaching'],
@@ -337,7 +362,9 @@ export const COACHES = [
   // ── Yoga ──
   {
     id: 13, name: 'Aoife Keogh', category: 'Yoga', filter: 'Fitness',
+    availability: 'taking',
     slug: 'aoife-keogh', verified: true,
+    chips: ['Yoga', 'Meditation', 'Relaxation'],
     heroImage: require('../../assets/coaches/aoife-keogh/hero.jpg'),
     location: 'Dublin',
     from: 'Available on request',
@@ -361,6 +388,7 @@ export const COACHES = [
 
   {
     id: 18, name: 'Luana Ciweck', category: 'Online Fitness Coaching', filter: 'Fitness',
+    availability: 'taking',
     slug: 'luana-ciweck', verified: true,
     heroImage: require('../../assets/coaches/luana-ciweck/hero.jpg'),
     location: 'Mayo', from: 'Available on request',

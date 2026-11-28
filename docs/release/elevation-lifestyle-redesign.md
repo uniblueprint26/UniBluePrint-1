@@ -81,3 +81,51 @@ Web and a production iOS bundle were checked. These could not be tried on a phon
 - Deep links to a partner (Home Spotlight, coach cross links) now open that card in the wallet.
 - JMC Fitness is a partner as well, so it got the logo, a colour and a card.
 - "Regular" chip sits under the logo tile on the stack card.
+
+
+## Card detail pass
+
+More detail on the Lifestyle partner cards and the Elevation coach cards. All of it is data driven, light and dark both work, and nothing was added to the card background art (still the baked images). No new dependencies.
+
+### The offer table (field `discountLabel`)
+
+| Pill text | Partners |
+| --- | --- |
+| 50% off joining | energie (joining fee 15 against a normal 30) |
+| 10% off | elect, royaltyproductions, coded69studios |
+| 10% off first booking | henrysisters |
+| 10% off first appointment | ilashedbydiya |
+| 1 week free trial | leva |
+| Free listings | roomy |
+| Up to 33% off | eabakeditt |
+| UBP Deal | jordanskitchen, claras, camila, veeslash, cutbyire, nyz3ditz, mpfitness, whipwizardz, jmc, kelan, poiemadexigns |
+| UBP Discount (default) | nailnurse, saiemsent, zvisionapparel, pouvoirs, islandsips, styledbybene, and any new partner |
+
+The pill is one line. Longer offers use a smaller font, and iOS and Android also shrink it to fit, so a word is never cut. The same label shows on the stack card, open card, back of the card, till view, partner profile (header chip and the deal card) and the Home Spotlight cards. Native cards never read the partner `deal` strings (they hold euro amounts). Only `discountLabel` is used.
+
+### The fields
+
+All four live in `app/src/data/partnerCards.js` (partners, keyed by partner id) or `app/src/screens/ElevationScreen.jsx` (coaches).
+
+- **`discountLabel`** (partner). The offer pill. Percentages or plain words only, never a euro amount. Change it with one line: `leva: { ..., discountLabel: '1 week free trial' }`. Leave it out for "UBP Discount".
+- **`serviceChips`** (partner). Up to three short chips (about 18 characters, no euro amounts) on the open card and the partner profile. Hand set for every live partner that has services or a price list, plus elect, coded69studios, zvisionapparel and kelan. Change it with `serviceChips: ['Gel extensions', 'Gel overlay', 'BIAB']`. If you remove it, the chips are worked out from the partner `services` array, then from the `pricelist` labels with prices and words like Deposit, Joining Fee, Standard Monthly, Student Monthly and per session stripped. Islandsips, Styledbybene and Pouvoirs have no data yet, so they show no chips.
+- **`about`** (partner). One short line under the card on the open card (two lines at most, about 100 characters). Only Energie has one set, because its description opens with a price. Change it with `about: 'One short sentence.'`. Without it, the first sentence of the partner `description` is used: sentences with a euro sign are dropped on native, an `(@handle)` in brackets is removed, placeholder text ("to be confirmed", "partner listing") is skipped, and a long sentence is cut on a word boundary with three dots. No `about` and no usable description shows nothing.
+- **`availability`** (coach). `'taking'` shows "Taking clients" with a green dot, `'nearly_full'` shows "Nearly full" with an amber dot, remove the field to show nothing. The words always show, so the colour is never the only signal. All 12 coaches are seeded `'taking'` as a placeholder. The founder should correct each coach. It shows top left of the photo on the swipe card (and the Home Spotlight coach card) and as a chip in the coach profile header.
+- **`chips`** (coach, optional). The up to three speciality chips on the swipe card. Without it they come from the coach `services` array (whole short phrases first), else the words in `category`. Hand set for 11 coaches whose service names are long (for example Eman shows LC Maths, LC Biology, LC Physics). Change it with `chips: ['Yoga', 'Meditation', 'Relaxation']`.
+
+### Social and website icons
+
+`components/lifestyle/wallet/PartnerLinks.jsx` now shows round 44 point buttons for Instagram, TikTok (a clean "TT" text mark, no brand artwork) and the website, each only when the link exists. The handles still come only from `usePartnerContact` (the backend RPC, Pro members only), the website from partner data. The Get in touch button stays and its list now holds Call or text and Email. The default open card blocks are unchanged (`['links']`). New file `components/lifestyle/wallet/ServiceChips.jsx` draws the chips and about line, and `components/elevation/AvailabilityBadge.jsx` draws the availability pill.
+
+### Choices not in the brief
+
+- Chips and the about line sit under the card (above the photos), not on the card face, so the face keeps its bank card shape and the slogan.
+- The partner profile shows the partner's full `services` list when it has one, and the three chips when it does not. The profile section "UBP Discount" is now called "The offer", because the pill is no longer always "UBP Discount".
+- The about line is about 100 characters, not 110, so it fits two lines on a normal phone. A very small phone may cut it with the usual tail ellipsis.
+- The swipe card gradient is a little stronger and the tagline shows two lines (three when there are no chips), so the name, tagline and chips stay readable over any photo.
+- Amber uses an orange amber (not the brand gold), dark pill with white text on the photo, theme colours on the profile.
+- Energie also has a hand written `about` and the chips "Gym membership" and "Student rate".
+
+### Not verified on a device
+
+Web (Playwright, light and dark) and a production iOS bundle were checked. Not tried on an iPhone in Expo Go: the `adjustsFontSizeToFit` pill shrink on the longest offer (it is a safety net, the font is already sized by length), how the three swipe card chips wrap on a narrow phone, opening Instagram, TikTok and website links from the round buttons, and the real contact data (the screenshots used a fake test response, nothing fake is in the app). Legacy sheets (`PartnerExpandCard`, `PartnerDetailSheet` in `components/lifestyle/PartnerCards.jsx`) still read the partner `deal` string. They are not part of the wallet and were left alone, worth a separate look for native prices.
